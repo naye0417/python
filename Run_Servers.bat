@@ -1,0 +1,2 @@
+cd Chatting_Chatbot
+python run_servers.py

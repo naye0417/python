@@ -1,0 +1,2 @@
+1) bot.py 먼저 실행 (서버를 연후)
+2) app.py 실행 ( bood_ex - ch9 - chatbot_api ) 

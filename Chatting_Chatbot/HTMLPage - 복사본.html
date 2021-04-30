@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Mobile Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>    
+  <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+
+    // 연결된 모든 사람들과 채팅할 때 사용함
+    function connectChatting(){
+      // 변수를 선언합니다.
+      var socket = io.connect();
+      // 이벤트를 연결합니다.
+      socket.on('message', function (data) {
+        // 추가할 문자열을 만듭니다.
+        var output = '';
+        output += '<li>';
+        output += '    <h3>' + data.name + '</h3>';
+        output += '    <p>' + data.message + '</p>';
+        output += '    <p>' + data.date + '</p>';
+        output += '</li>';
+
+        // 문서 객체를 추가합니다.
+        $(output).prependTo('#content_chatting');
+        $('#content_chatting').listview('refresh');
+      });
+      // 버튼을 클릭할 때
+      $('#button_chatting').click(function () {
+        socket.emit('message', {
+          name: $('#name').val(),
+          message: $('#message_chatting').val(),
+          date: new Date().toUTCString()
+        });
+      });
+    }
+
+
+    // 챗봇과 대화할 때 사용함
+    function sendChatBot(){
+      $("#button_chatbot").click(function(){
+        var $msg = $("#message_chatbot").val();
+
+        var output = '';
+              output += '<li>';
+              output += '    <h3>' + $('#name').val() + '</h3>';
+              output += '    <p>' + $msg + '</p>';
+              output += '    <p>' + new Date().toUTCString() + '</p>';
+              output += '</li>';
+
+              // 문서 객체를 추가합니다.
+              $(output).prependTo('#content_chatbot');
+              $('#content_chatbot').listview('refresh');
+
+        var send_data = {
+            query : $msg
+          }
+
+        $.ajax({
+          url : "http://127.0.0.1:5000/query/TEST",
+          type : "POST",
+          contentType : "application/json; charset=utf-8",
+          data : JSON.stringify(send_data),
+          success : function(data){
+              console.log(data);
+
+              var output = '';
+              output += '<li>';
+              output += '    <h3>ChatBot Answer</h3>';
+              output += '    <p>' + data.Answer + '</p>';
+              output += '    <p>' + new Date().toUTCString() + '</p>';
+              output += '</li>';
+
+              // 문서 객체를 추가합니다.
+              $(output).prependTo('#content_chatbot');
+              $('#content_chatbot').listview('refresh');
+            },
+          error : function(data){
+              console.log(data);
+            }
+          });
+      });
+    }
+
+    // HTML 문서가 모두 준비되면
+    $(document).ready(function () {
+      connectChatting();
+      sendChatBot();
+    });
+
+  </script>
+</head>
+<body>
+  <div data-role="page">
+    <div data-role="header">
+      <h1>Socket.io Chat</h1>
+    </div>
+    <div data-role="content">
+      <h3>Nick Name</h3>
+      <input id="name" />
+      <a data-role="button" href="#chatting_page">Start Chatting with Everyone</a>
+      <a data-role="button" href="#chatbot_page">Start ChatBot</a>
+    </div>
+  </div>
+  <div data-role="page" id="chatting_page">
+    <div data-role="header">
+      <h1>Chatting with Everyone</h1>
+    </div>
+    <div data-role="content">
+      <input id="message_chatting" />
+      <button id="button_chatting">Button</button>
+      <ul id="content_chatting" data-role="listview" data-inset="true"></ul>
+    </div>
+  </div>
+  <div data-role="page" id="chatbot_page">
+    <div data-role="header">
+      <h1>Chat Bot</h1>
+    </div>
+    <div data-role="content">
+      <input id="message_chatbot" />
+      <button id="button_chatbot">Button</button>
+      <ul id="content_chatbot" data-role="listview" data-inset="true"></ul>
+    </div>
+  </div>
+</body>
+</html>
